@@ -3,6 +3,7 @@ let
   cfg = config.programs.nhx;
   steelCfg = cfg.steel;
   initScm = import ./init-scm.nix { inherit lib; };
+  pluginLib = import ./plugins/lib.nix { inherit lib; };
 
   # the plugin set packaged by nhx (see ./pkgs)
   helixPlugins = pkgs.callPackage ../pkgs { };
@@ -77,50 +78,7 @@ in
       description = "Every plugin packaged by nhx, e.g. for programs.nhx.steel.plugins.<name>.package.";
     };
 
-    plugins =
-      let
-        pluginType = lib.types.attrsOf (lib.types.submodule {
-          options = {
-            enable = lib.mkOption {
-              type = lib.types.bool;
-              default = true;
-              description = "Whether to install and require this plugin.";
-            };
-            package = lib.mkOption {
-              type = lib.types.nullOr lib.types.package;
-              default = null;
-              description = "Override the packaged plugin derivation. Defaults to nhx's package for this plugin name.";
-            };
-            requirePath = lib.mkOption {
-              type = lib.types.nullOr lib.types.str;
-              default = null;
-              description = "Path used in the generated (require ...) line. Defaults to <name>/<name>.scm.";
-            };
-            extra = lib.mkOption {
-              type = lib.types.lines;
-              default = "";
-              description = "Raw Scheme appended after this plugin's require line.";
-            };
-          };
-        });
-      in
-      lib.mkOption {
-        type = lib.types.mkOptionType {
-          name = "nhxPlugins";
-          description = "list of plugin names, or attrset of per plugin options";
-          check = v: builtins.isList v || builtins.isAttrs v;
-          merge =
-            loc: defs:
-            pluginType.merge loc (
-              map (d: {
-                inherit (d) file;
-                value = if builtins.isList d.value then lib.genAttrs d.value (n: { }) else d.value;
-              }) defs
-            );
-        };
-        default = { };
-        description = "Steel plugins to install and require. Either a list of names or an attrset of per plugin options.";
-      };
+    plugins = pluginLib.mkPluginsOption (import ./plugins/registry.nix { inherit lib; });
 
     lsp = lib.mkOption {
       type = lib.types.submodule {

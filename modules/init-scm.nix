@@ -34,13 +34,15 @@ rec {
 
       pluginRequires = concatStringsSep "\n" (map (name: reqOf name steelCfg.plugins.${name}) names);
 
-      pluginExtras = concatStringsSep "\n" (
+      pluginSections = concatStringsSep "\n\n" (
         lib.filter (l: l != "") (
           map (
             name:
-            optionalString (
-              steelCfg.plugins.${name}.enable && steelCfg.plugins.${name}.extra != ""
-            ) steelCfg.plugins.${name}.extra
+            let
+              p = steelCfg.plugins.${name};
+              extra = optionalString (p.enable && p.extra != "") p.extra;
+            in
+            concatStringsSep "\n" (lib.filter (line: line != "") [ p.rendered extra ])
           ) names
         )
       );
@@ -51,7 +53,7 @@ rec {
         (concatStringsSep "\n" (map (r: s.call "require" [ (s.str r) ]) coreRequires))
         (optionalString (pluginRequires != "") pluginRequires)
         (optionalString steelCfg.lsp.enable (renderLsp steelCfg.lsp))
-        (optionalString (pluginExtras != "") pluginExtras)
+        (optionalString (pluginSections != "") pluginSections)
       ]
     );
 }

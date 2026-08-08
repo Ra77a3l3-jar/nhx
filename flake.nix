@@ -12,6 +12,10 @@
       eachSystem = f: nixpkgs.lib.genAttrs systems (system: f system nixpkgs.legacyPackages.${system});
     in
     {
+      legacyPackages = eachSystem (system: pkgs: {
+        helixPlugins = pkgs.callPackage ./pkgs { };
+      });
+
       homeManagerModules = {
         nhx = import ./modules;
         default = self.homeManagerModules.nhx;

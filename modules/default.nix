@@ -5,6 +5,10 @@ let
   tomlFormat = pkgs.formats.toml { };
 in
 {
+  imports = [
+    ./steel.nix
+  ];
+
   options.programs.nhx = {
     enable = lib.mkEnableOption "nhx, declarative Helix configuration with Steel plugin support";
 

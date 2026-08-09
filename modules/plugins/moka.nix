@@ -14,6 +14,34 @@ in
 p.mkPluginDescriptor {
   name = "moka";
   options = {
+    transparent = mkOption {
+      type = types.nullOr types.bool;
+      default = null;
+      description = "moka configure, transparent background.";
+    };
+    rowOffset = mkOption {
+      type = types.nullOr types.int;
+      default = null;
+      description = "moka configure, statusline row offset.";
+    };
+    modeColors = mkOption {
+      type = types.attrsOf (
+        types.submodule {
+          options = {
+            bg = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+            };
+            fg = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+            };
+          };
+        }
+      );
+      default = { };
+      description = "Mode name to bg and fg colors, rendered into mode-colors.";
+    };
     sections = mkOption {
       type = types.listOf (
         types.submodule {
@@ -167,8 +195,37 @@ p.mkPluginDescriptor {
           (s.sym sec.align)
         ];
 
+      renderColorHash =
+        colors:
+        s.hash (
+          optionals (colors.bg != null) [
+            (s.hashEntry (s.sym "bg") (s.str colors.bg))
+          ]
+          ++ optionals (colors.fg != null) [
+            (s.hashEntry (s.sym "fg") (s.str colors.fg))
+          ]
+        );
+
+      renderModeColors =
+        modeColors:
+        s.hash (
+          map (mode: s.hashEntry (s.sym mode) (renderColorHash modeColors.${mode})) (attrNames modeColors)
+        );
+
       renderConfigure = s.call "moka-configure!" (
-        optionals (cfg.sections != [ ]) [
+        optionals (cfg.transparent == true) [
+          (s.kw "transparent?")
+          (s.bool true)
+        ]
+        ++ optionals (cfg.rowOffset != null) [
+          (s.kw "row-offset")
+          (toString cfg.rowOffset)
+        ]
+        ++ optionals (cfg.modeColors != { }) [
+          (s.kw "mode-colors")
+          (renderModeColors cfg.modeColors)
+        ]
+        ++ optionals (cfg.sections != [ ]) [
           (s.kw "sections")
           (s.list (map renderSection cfg.sections))
         ]

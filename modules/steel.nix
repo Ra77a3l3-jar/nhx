@@ -66,6 +66,14 @@ let
       paths = map (drv: drv.native) nativePlugins;
     };
   };
+
+  # local scheme files in extraRequires are installed next to init.scm
+  extraFileLinks = builtins.listToAttrs (
+    map (e: {
+      name = ".config/helix/${initScm.fileBaseName e}";
+      value.text = builtins.readFile e;
+    }) cfg.extraRequires
+  );
 in
 {
   options.programs.nhx = {
@@ -78,6 +86,31 @@ in
     };
 
     plugins = pluginLib.mkPluginsOption (import ./plugins/registry.nix { inherit lib; });
+
+    coreRequires = lib.mkOption {
+      type = lib.types.mkOptionType {
+        name = "coreRequires";
+        description = "list of paths relative to the config file, resolved as module names from STEEL_HOME/cogs";
+        merge =
+          loc: defs:
+          lib.concatLists (
+            map (
+              d:
+              map (e: lib.removePrefix (builtins.dirOf d.file + "/") (toString e)) d.value
+            ) defs
+          );
+      };
+      default = [ ];
+      example = lib.literalExpression "[ ./helix/treesitter.scm ]";
+      description = "Core scheme files from STEEL_HOME/cogs, given as paths relative to the config file, required at the top of init.scm and added to the defaults (duplicates dropped).";
+    };
+
+    extraRequires = lib.mkOption {
+      type = lib.types.listOf lib.types.path;
+      default = [ ];
+      example = lib.literalExpression "[ ./extra.scm ]";
+      description = "Local scheme files, given as paths relative to the config file, installed next to init.scm and required by their basename.";
+    };
   };
 
   options.programs.nhx.steel = {
@@ -111,6 +144,7 @@ in
     home.file =
       cogLinks
       // nativeLinks
+      // extraFileLinks
       // {
         ".config/helix/init.scm" = {
           text = initScm.render cfg;

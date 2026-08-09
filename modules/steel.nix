@@ -116,6 +116,16 @@ in
   options.programs.nhx.steel = {
     enable = lib.mkEnableOption "Steel plugin support for Helix";
 
+    extra = lib.mkOption {
+      type = lib.types.lines;
+      default = "";
+      example = lib.literalExpression ''
+        (when (equal? (command-line) '("hx"))
+          (show-splash))
+      '';
+      description = "Raw scheme appended at the end of the generated init.scm, for things that cannot be configured with the existing options.";
+    };
+
     lsp = lib.mkOption {
       type = lib.types.submodule {
         options = {

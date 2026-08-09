@@ -90,6 +90,7 @@ rec {
         (optionalString (requiresBlock != "") requiresBlock)
         (optionalString steelCfg.lsp.enable (renderLsp steelCfg.lsp))
         (optionalString (pluginSections != "") pluginSections)
+        (optionalString (steelCfg.extra != "") steelCfg.extra)
       ]
     );
 }

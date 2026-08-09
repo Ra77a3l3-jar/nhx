@@ -7,4 +7,5 @@
   (import ./notify.nix { inherit lib; })
   (import ./oil.nix { inherit lib; })
   (import ./scopeline.nix { inherit lib; })
+  (import ./who-unstable.nix { inherit lib; })
 ]

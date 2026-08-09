@@ -10,9 +10,10 @@ rec {
       name,
       options ? { },
       render ? (cfg: ""),
+      requirePath ? null,
     }:
     {
-      inherit name options render;
+      inherit name options render requirePath;
     };
 
   mkPluginsOption = descriptors:
@@ -38,7 +39,7 @@ rec {
               };
               requirePath = mkOption {
                 type = types.nullOr types.str;
-                default = null;
+                default = registry.${name}.requirePath or null;
                 description = "Path used in the generated (require ...) line. Defaults to <name>/<name>.scm.";
               };
               extra = mkOption {

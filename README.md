@@ -5,13 +5,16 @@ Declarative Helix configuration for Nix, with Steel plugin support.
 nhx is a Home Manager module that manages Helix settings, installs Steel
 plugins, configures them and generates `init.scm` from your Nix configuration.
 
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) to package new
+plugins and adding their optional Nix configuration.
+
 ## Usage
 
 Add nhx to your flake inputs and import its Home Manager module:
 
 ```nix
 {
-  inputs.nhx.url = "github:Ra77a3l3-jar/nhx";
+  inputs.nhx.url = "https://codeberg.org/Ra77a3l3-jar/nhx.git";
 
   outputs = { nixpkgs, home-manager, nhx, ... }: {
     homeConfigurations.me = home-manager.lib.homeManagerConfiguration {
@@ -78,7 +81,6 @@ Then configure Helix in `home.nix`:
         };
       };
     };
-    
   };
 }
 ```
@@ -91,8 +93,9 @@ form to the generated `~/.config/helix/init.scm`.
 - [`pkgs/helixPlugins/`](pkgs/helixPlugins/) contains the package derivations
   for the available Helix plugins.
 - [`modules/plugins/`](modules/plugins/) contains the Nix module definitions
-  that describe how plugins can be configured and how their configuration is
-  rendered for Helix.
+  for plugins with Nix configuration. Their descriptors render configuration
+  to Scheme and are registered in
+  [`modules/plugins/registry.nix`](modules/plugins/registry.nix).
 - [`modules/`](modules/) contains the main Home Manager module and Steel
   integration.
 

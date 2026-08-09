@@ -15,6 +15,30 @@ let
   ];
 in
 rec {
+  # keymap hashes for buffer and extension keymaps
+  renderKeyEntry =
+    key: value:
+    if lib.isString value then
+      s.hashEntry (s.str key) (s.str value)
+    else if lib.isList value then
+      s.hashEntry (s.str key) (s.list (map s.str value))
+    else if lib.isAttrs value then
+      s.hashEntry (s.str key) (renderKeyHash value)
+    else
+      throw "nhx: keymap value for ${key} must be a string, list or attrset";
+
+  renderKeyHash = attrs: s.hash (map (key: renderKeyEntry key attrs.${key}) (attrNames attrs));
+
+  renderOilKeymaps = keymaps:
+    concatStringsSep "\n" [
+      (s.call "define" [ "oil-keymaps" (renderKeyHash keymaps) ])
+      (s.call "define" [ "oil-keybindings" (s.call "deep-copy-global-keybindings" [ ]) ])
+      (s.call "merge-keybindings" [ "oil-keybindings" "oil-keymaps" ])
+      (s.call "set-global-buffer-or-extension-keymap" [
+        (s.hash [ (s.hashEntry "OIL-BUFFER-NAME" "oil-keybindings") ])
+      ])
+    ];
+
   renderLsp = l: concatStringsSep "\n" [
     (s.call "define-lsp" [ (s.str l.serverName) (s.call "command" [ (s.str l.serverName) ]) (s.call "args" [ s.empty ]) ])
     (s.call "define-language" [ (s.str l.language) (s.call "language-servers" [ (s.quoteList [ (s.str l.serverName) ]) ]) ])

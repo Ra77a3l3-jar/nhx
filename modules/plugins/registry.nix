@@ -3,4 +3,5 @@
 [
   (import ./forest.nix { inherit lib; })
   (import ./moka.nix { inherit lib; })
+  (import ./oil.nix { inherit lib; })
 ]

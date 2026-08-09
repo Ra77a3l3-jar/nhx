@@ -28,8 +28,8 @@ rec {
             options = {
               enable = mkOption {
                 type = types.bool;
-                default = true;
-                description = "Whether to install and require this plugin.";
+                default = false;
+                description = "Whether to require this plugin in the generated init.scm. Mentioning a plugin installs it, enable adds the require.";
               };
               package = mkOption {
                 type = types.nullOr types.package;
@@ -76,7 +76,25 @@ rec {
           pluginType.merge loc (
             map (d: {
               inherit (d) file;
-              value = if builtins.isList d.value then lib.genAttrs d.value (n: { }) else d.value;
+              value =
+                if builtins.isList d.value then
+                  lib.listToAttrs (
+                    map (
+                      entry:
+                      if lib.isDerivation entry then
+                        lib.nameValuePair
+                          (entry.cogName or entry.pluginName
+                            or (throw "plugin package is missing a cogName/pluginName passthru")
+                          )
+                          {
+                            package = entry;
+                          }
+                      else
+                        lib.nameValuePair entry { }
+                    ) d.value
+                  )
+                else
+                  d.value;
             }) defs
           );
       };
@@ -84,6 +102,6 @@ rec {
     mkOption {
       type = pluginsType;
       default = { };
-      description = "Steel plugins to install and require. Either a list of names or an attrset of per plugin options.";
+      description = "Steel plugins to install and require. Either a list of names or packages, or an attrset of per plugin options.";
     };
 }

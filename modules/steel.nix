@@ -43,11 +43,12 @@ let
         Open a PR to nhx adding it to pkgs/helixPlugins/.
       '');
 
-  enabledPlugins = lib.attrNames (lib.filterAttrs (name: p: p.enable) steelCfg.plugins);
+  # every plugin mentioned in the plugins option is installed into STEEL_HOME
+  installedPlugins = lib.attrNames cfg.plugins;
 
-  enabledPackages = map (name: resolvePackage name steelCfg.plugins.${name}) enabledPlugins;
+  installedPackages = map (name: resolvePackage name cfg.plugins.${name}) installedPlugins;
 
-  allPlugins = flattenPlugins enabledPackages;
+  allPlugins = flattenPlugins installedPackages;
   # pure plugins carry passthru.native = null (or no native attr); native plugins
   # expose a `native` output or passthru attr
   nativePlugins = builtins.filter (drv: (drv.native or null) != null) allPlugins;
@@ -67,18 +68,20 @@ let
   };
 in
 {
-  options.programs.nhx.steel = {
-    enable = lib.mkEnableOption "Steel plugin support for Helix";
-
+  options.programs.nhx = {
     availablePlugins = lib.mkOption {
       type = lib.types.attrs;
       readOnly = true;
       default = helixPlugins;
       defaultText = lib.literalExpression "nhx's own plugin set (pkgs/helixPlugins)";
-      description = "Every plugin packaged by nhx, e.g. for programs.nhx.steel.plugins.<name>.package.";
+      description = "Every plugin packaged by nhx, e.g. for programs.nhx.plugins.<name>.package.";
     };
 
     plugins = pluginLib.mkPluginsOption (import ./plugins/registry.nix { inherit lib; });
+  };
+
+  options.programs.nhx.steel = {
+    enable = lib.mkEnableOption "Steel plugin support for Helix";
 
     lsp = lib.mkOption {
       type = lib.types.submodule {
@@ -102,6 +105,9 @@ in
   };
 
   config = lib.mkIf (cfg.enable && steelCfg.enable) {
+    # short binding so configs can write plugins = with helixPlugins; [ ... ];
+    _module.args.helixPlugins = config.programs.nhx.availablePlugins;
+
     home.file =
       cogLinks
       // nativeLinks

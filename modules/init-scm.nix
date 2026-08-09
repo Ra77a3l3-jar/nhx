@@ -48,7 +48,7 @@ rec {
     nhxCfg:
     let
       steelCfg = nhxCfg.steel;
-      names = attrNames steelCfg.plugins;
+      names = attrNames nhxCfg.plugins;
 
       reqOf =
         name: p:
@@ -56,14 +56,14 @@ rec {
           s.call "require" [ (s.str (if p.requirePath != null then p.requirePath else "${name}/${name}.scm")) ]
         );
 
-      pluginRequires = concatStringsSep "\n" (map (name: reqOf name steelCfg.plugins.${name}) names);
+      pluginRequires = concatStringsSep "\n" (map (name: reqOf name nhxCfg.plugins.${name}) names);
 
       pluginSections = concatStringsSep "\n\n" (
         lib.filter (l: l != "") (
           map (
             name:
             let
-              p = steelCfg.plugins.${name};
+              p = nhxCfg.plugins.${name};
               extra = optionalString (p.enable && p.extra != "") p.extra;
             in
             concatStringsSep "\n" (lib.filter (line: line != "") [ p.rendered extra ])

@@ -17,10 +17,8 @@ let
 in
 rec {
   # extra require entries are local scheme files (paths relative to the config
-  # file), installed next to init.scm and required by their basename
-  fileBaseName = e: lib.last (lib.splitString "/" (toString e));
-
-  extraRequireLine = e: s.call "require" [ (s.str (fileBaseName e)) ];
+  # file), installed next to init.scm and required by their path relative to it
+  extraRequireLine = e: s.call "require" [ (s.str e.name) ];
 
   # keymap hashes for buffer and extension keymaps
   renderKeyEntry =

@@ -70,8 +70,8 @@ let
   # local scheme files in extraRequires are installed next to init.scm
   extraFileLinks = builtins.listToAttrs (
     map (e: {
-      name = ".config/helix/${initScm.fileBaseName e}";
-      value.text = builtins.readFile e;
+      name = ".config/helix/${e.name}";
+      value.text = builtins.readFile e.path;
     }) cfg.extraRequires
   );
 in
@@ -106,10 +106,35 @@ in
     };
 
     extraRequires = lib.mkOption {
-      type = lib.types.listOf lib.types.path;
+      type = lib.types.mkOptionType {
+        name = "extraRequires";
+        description = "list of scheme files given as paths relative to the config file, installed next to init.scm";
+        merge =
+          loc: defs:
+          lib.concatLists (
+            map (
+              d:
+              map (
+                e:
+                let
+                  path = toString e;
+                  configDir = builtins.dirOf d.file + "/";
+                  rel = lib.removePrefix configDir path;
+                in
+                {
+                  # files under the config dir keep their relative path, so
+                  # foo/bar.scm and baz/bar.scm do not collide; anything else
+                  # falls back to its basename
+                  name = if rel != path then rel else lib.last (lib.splitString "/" path);
+                  inherit path;
+                }
+              ) d.value
+            ) defs
+          );
+      };
       default = [ ];
       example = lib.literalExpression "[ ./extra.scm ]";
-      description = "Local scheme files, given as paths relative to the config file, installed next to init.scm and required by their basename.";
+      description = "Local scheme files, given as paths relative to the config file, installed next to init.scm and required by their path relative to it.";
     };
   };
 

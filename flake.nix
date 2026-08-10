@@ -16,6 +16,10 @@
         helixPlugins = pkgs.callPackage ./pkgs { };
       });
 
+      checks = eachSystem (system: pkgs: {
+        default = pkgs.callPackage ./tests/check.nix { };
+      });
+
       homeManagerModules = {
         nhx = import ./modules;
         default = self.homeManagerModules.nhx;

@@ -1,5 +1,7 @@
 # nhx
 
+[Codeberg Repo](https://codeberg.org/Ra77a3l3-jar/nhx) | [GitHub Mirror](https://github.com/Ra77a3l3-jar/nhx)
+
 Declarative Helix configuration for Nix, with Steel plugin support.
 
 nhx is a Home Manager module that manages Helix settings, installs Steel

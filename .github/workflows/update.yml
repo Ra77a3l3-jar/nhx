@@ -4,18 +4,24 @@ on:
     - cron: "0 */12 * * *"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   update:
-    runs-on: host-nixos
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v16
 
       - name: Setup Git
         run: |
           git config user.name "Update Bot"
-          git config user.email "bot@users.noreply.codeberg.org"
+          git config user.email "bot@users.noreply.github.com"
           git config commit.gpgsign false
 
       - name: Update Script
@@ -23,7 +29,7 @@ jobs:
 
       - name: Commit Updates
         run: |
-          git add pkgs/helixPlugins
+          git add pkgs
           if git diff --cached --quiet; then
             echo "No updates to commit"
           else
@@ -32,4 +38,4 @@ jobs:
 
       - name: Push
         run: |
-          git push https://${{ github.actor }}:${{ github.token }}@codeberg.org/${{ github.repository }}.git HEAD:main
+          git push https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git HEAD:main

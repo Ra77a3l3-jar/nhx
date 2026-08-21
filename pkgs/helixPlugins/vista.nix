@@ -10,6 +10,7 @@ buildHelixPlugin (finalAttrs: {
   pname = "vista.hx";
   version = "0-unstable-2026-07-30";
   cogName = "vista";
+  updateVersion = "branch";
 
   src = fetchFromGitHub {
     owner = "Ra77a3l3-jar";

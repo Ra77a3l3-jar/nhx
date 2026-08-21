@@ -10,6 +10,7 @@ buildHelixPlugin (finalAttrs: {
   pname = "moka.hx";
   version = "0-unstable-2026-07-21";
   cogName = "moka";
+  updateVersion = "branch";
 
   src = fetchFromGitHub {
     owner = "Ra77a3l3-jar";

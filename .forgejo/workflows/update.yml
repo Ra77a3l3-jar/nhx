@@ -1,0 +1,35 @@
+name: Update
+on:
+  schedule:
+    - cron: "0 */12 * * *"
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: host-nixos
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup Git
+        run: |
+          git config user.name "Update Bot"
+          git config user.email "bot@users.noreply.codeberg.org"
+          git config commit.gpgsign false
+
+      - name: Update Script
+        run: nix shell nixpkgs#{nix-update,jq} --command bash ./update.sh
+
+      - name: Commit Updates
+        run: |
+          git add pkgs/helixPlugins
+          if git diff --cached --quiet; then
+            echo "No updates to commit"
+          else
+            git commit -m "plugins: updated"
+          fi
+
+      - name: Push
+        run: |
+          git push https://${{ github.actor }}:${{ github.token }}@codeberg.org/${{ github.repository }}.git HEAD:main

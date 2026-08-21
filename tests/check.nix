@@ -35,6 +35,7 @@ let
       })
 
       {
+        _file = ./check.nix;
         programs.nhx = {
           enable = true;
 
@@ -43,7 +44,17 @@ let
             editor.line-number = "relative";
           };
 
-          coreRequires = [ helix/treesitter.scm ];
+          languages = {
+            language = [
+              {
+                name = "scheme";
+                scope = "source.scheme";
+                file-types = [ "scm" ];
+              }
+            ];
+          };
+
+          coreRequires = [ ./helix/treesitter.scm ];
 
           steel = {
             enable = true;
@@ -128,7 +139,7 @@ let
     (assertLacks "trail")
 
     # config check
-    (assertHas "(forest-set-style! 'mini)")
+    (assertHas "(forest-set-style! 'snacks)")
     (assertHas "(forest-configure! 'left")
     (assertHas "(moka-configure!")
     (assertHas "(moka-enable!)")
@@ -170,7 +181,8 @@ let
 
   missingCogs = lib.subtractLists installedCogs expectedCogs;
 in
-builtins.seq asserts (
+# deepSeq forces the assert thunks so the asserts actually run
+builtins.seq (builtins.deepSeq asserts asserts) (
   if missingFiles != [ ] then
     throw "nhx check: missing files: ${lib.concatStringsSep ", " missingFiles}"
   else if missingCogs != [ ] then

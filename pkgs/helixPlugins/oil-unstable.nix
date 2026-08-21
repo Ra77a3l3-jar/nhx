@@ -16,8 +16,8 @@ buildHelixPlugin (finalAttrs: {
   src = fetchFromGitHub {
     owner = "Ra77a3l3-jar";
     repo = finalAttrs.pname;
-    rev = "5b7a27a95cbce4da4655f743b15db9b4c6d61efe";
-    hash = "sha256-OPQVyF/EdrYRdMmWbvK39n1lajdlfCJYm/jdcoLySIk=";
+    rev = "fdd38520dc041d4314a7c5bc13520195b7f06cfa";
+    hash = "sha256-cMpKLYVh5RkrbmKbigYdAjrF8J1wq6KxOfXoZ4AHLeE=";
   };
 
   pluginDependencies = [

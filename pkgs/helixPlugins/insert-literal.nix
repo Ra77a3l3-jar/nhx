@@ -5,13 +5,13 @@
 }:
 buildHelixPlugin (finalAttrs: {
   pname = "insert-literal.hx";
-  version = "0.1.0";
+  version = "0.1.1";
 
   src = fetchFromGitHub {
     owner = "waddie";
     repo = finalAttrs.pname;
     tag = "v${finalAttrs.version}";
-    hash = "sha256-RxZ8nT3ZSHTtKcbR3JMKg3V7SL2nzccLjiqUnmiOcnw=";
+    hash = "sha256-z6VjJWnKiN4DCamzHLUwj2cEKu7ztBWfLdJyhCDYK68=";
   };
 
   meta = {

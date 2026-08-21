@@ -5,14 +5,14 @@
 }:
 buildHelixPluginWithNative (finalAttrs: {
   pname = "helix-file-watcher";
-  version = "0-unstable-2026-08-02";
+  version = "0-unstable-2026-08-09";
   updateVersion = "branch";
 
   src = fetchFromGitHub {
     owner = "mattwparas";
     repo = finalAttrs.pname;
-    rev = "ea1ad0dfc1f5f806eed837baf01ef0263cff1be0";
-    hash = "sha256-O8qkQX+yYjSCtnZ59jfVJdPYc7XTvMpBw3gXtWtjfAk=";
+    rev = "8cd0726da47be4a1011c3246ff308c1dfefda9d1";
+    hash = "sha256-auqS4wcJGCUJXzRVj4neQLJnqErvty3+3shfq5DU/pg=";
   };
 
   cargoHash = "sha256-RhxKQSydcY48/aWZGPbJe6pFrKptynMV35BQSD16tXo=";

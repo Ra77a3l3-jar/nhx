@@ -5,15 +5,15 @@
 }:
 buildHelixPlugin (finalAttrs: {
   pname = "switch.hx";
-  version = "0-unstable-2026-07-17";
+  version = "0-unstable-2026-08-19";
   cogName = "switch";
   updateVersion = "branch";
 
   src = fetchFromCodeberg {
     owner = "gwid";
     repo = finalAttrs.pname;
-    rev = "4c510493ea8420cfdc706b89cb4726aaec5df219";
-    hash = "sha256-r0UNpR1treNOQquNRP6JYs6Pah+b+3/9/zLdSlQAR68=";
+    rev = "dca021f353b308516558e91a478cff658d6064ee";
+    hash = "sha256-fWvesLfTuBgBsBffcO2kPH4KYr92C4/zkTLsyBpXyqo=";
   };
 
   meta = {

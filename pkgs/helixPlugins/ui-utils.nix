@@ -5,13 +5,13 @@
 }:
 buildHelixPlugin (finalAttrs: {
   pname = "ui-utils.hx";
-  version = "0.5.0";
+  version = "0.6.0";
 
   src = fetchFromGitHub {
     owner = "waddie";
     repo = finalAttrs.pname;
     tag = "v${finalAttrs.version}";
-    hash = "sha256-fgw6JoQZjnNl5nFk9ExF64nCOaTmtEPb3ulyxpekYaU=";
+    hash = "sha256-rl/I8rkSVu1sCx3FqEwKn3X6gPs8R24352mRXCDBJ18=";
   };
 
   doSteelCheck = true;

@@ -7,13 +7,13 @@
 }:
 buildHelixPlugin (finalAttrs: {
   pname = "previously.hx";
-  version = "0.2.2";
+  version = "0.3.0";
 
   src = fetchFromGitHub {
     owner = "waddie";
     repo = finalAttrs.pname;
     tag = "v${finalAttrs.version}";
-    hash = "sha256-RIVEXFodiqeRq57Xh7cAntvHI5FXYcfMNkbpJcvuMgU=";
+    hash = "sha256-d6Of6gbRY2Ka5W+cbfWb23jlvFwWnOFOlDNjnC8/EAY=";
   };
 
   pluginDependencies = [

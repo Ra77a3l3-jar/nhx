@@ -5,7 +5,7 @@
 }:
 buildHelixPlugin (finalAttrs: {
   pname = "who.hx";
-  version = "0.1.0";
+  version = "0-unstable-2026-07-08";
   cogName = "who";
   updateVersion = "branch";
 

@@ -8,15 +8,15 @@
 
 buildHelixPlugin (finalAttrs: {
   pname = "moka.hx";
-  version = "0-unstable-2026-07-21";
+  version = "0-unstable-2026-08-21";
   cogName = "moka";
   updateVersion = "branch";
 
   src = fetchFromGitHub {
     owner = "Ra77a3l3-jar";
     repo = finalAttrs.pname;
-    rev = "493a0e64b7afd67eb02a37a8472984a215b745ce";
-    hash = "sha256-yXcr5rbm4HF2d0ISuRWrrNDcTK1EGSyTv82JlJNfrOc=";
+    rev = "f914abbf3f5e69b828dc9ef3ceb2066ac8f442d8";
+    hash = "sha256-uKgUTb40gI6ro+7K0Y0rBztgcA14qcHPkbTaW2Sx6Zg=";
   };
 
   pluginDependencies = [

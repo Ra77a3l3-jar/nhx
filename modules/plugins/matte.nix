@@ -12,6 +12,7 @@ let
 in
 p.mkPluginDescriptor {
   name = "matte";
+  requirePath = "matte.hx/matte.scm";
   options = {
     width = mkOption {
       type = types.nullOr types.int;

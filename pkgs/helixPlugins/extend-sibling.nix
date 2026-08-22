@@ -7,13 +7,13 @@
 }:
 buildHelixPlugin (finalAttrs: {
   pname = "extend-sibling.hx";
-  version = "0.1.0";
+  version = "0.2.0";
 
   src = fetchFromGitHub {
     owner = "waddie";
     repo = finalAttrs.pname;
     tag = "v${finalAttrs.version}";
-    hash = "sha256-s6B7xdtPW3u3bYsskJ7A8q/aUKaDaPfK5mg9zNbxqa8=";
+    hash = "sha256-D/MDRe1oex4T0wmYAxSeNYvA3iAj9au6HOeJqTC5c4Y=";
   };
 
   pluginDependencies = [

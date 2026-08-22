@@ -8,15 +8,15 @@
 }:
 buildHelixPlugin (finalAttrs: {
   pname = "forest.hx";
-  version = "0-unstable-2026-08-08";
+  version = "0-unstable-2026-08-22";
   cogName = "forest";
   updateVersion = "branch";
 
   src = fetchFromGitHub {
     owner = "Ra77a3l3-jar";
     repo = finalAttrs.pname;
-    rev = "40e5aadf64b652534978a644dfc8536d95f7cabd";
-    hash = "sha256-oclnuR77thCeZh/A/qP3xfUuO6hkuAI4eVgEgGUeEjA=";
+    rev = "7a67b05c6919c9a670a5591fe1e21832d1edcdda";
+    hash = "sha256-0m8Az1B4mLzg9XFkYe3HQtpSiDkGz3c5N+8lFqZ95Ts=";
   };
 
   pluginDependencies = [

@@ -5,16 +5,15 @@
 }:
 buildHelixPlugin (finalAttrs: {
   pname = "moka.hx";
-  version = "0-unstable-2026-07-14";
+  version = "0-unstable-2026-08-22";
   cogName = "moka";
-  # updateVersion = "branch";
-  updateVersion = "skip"; # [todo] update again after https://github.com/mattwparas/helix/pull/129 is merged and released in pkgs.steelix
+  updateVersion = "branch";
 
   src = fetchFromGitHub {
     owner = "Ra77a3l3-jar";
     repo = finalAttrs.pname;
-    rev = "d25ce9e302c3ef0cbad82ec6012582cbb66d440f";
-    hash = "sha256-qV4MgOV3QJLQv8zCGvUSP5r8JOAWhx8jAUH+iKzHV9A=";
+    rev = "6c0865244d338e800fe49427d9e70fb2b750b2a0";
+    hash = "sha256-w8IV+mZCkz98FvSc3m3lbQTm7eHk+HPlFaxQmQKsdnU=";
   };
 
   meta = {

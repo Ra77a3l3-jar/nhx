@@ -4,7 +4,6 @@
   (import ./forest.nix { inherit lib; })
   (import ./grove.nix { inherit lib; })
   (import ./moka.nix { inherit lib; })
-  (import ./moka-unstable.nix { inherit lib; })
   (import ./matte.nix { inherit lib; })
   (import ./notify.nix { inherit lib; })
   (import ./oil.nix { inherit lib; })

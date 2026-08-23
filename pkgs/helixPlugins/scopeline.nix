@@ -7,7 +7,7 @@
 }:
 buildHelixPlugin (finalAttrs: {
   pname = "scopeline.hx";
-  version = "0-unstable-2026-08-22";
+  version = "0.2.0-unstable-2026-08-22";
   cogName = "scopeline";
   updateVersion = "branch";
 

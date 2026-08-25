@@ -9,13 +9,13 @@
 }:
 buildHelixPlugin (finalAttrs: {
   pname = "run-shell.hx";
-  version = "0.1.0";
+  version = "0.1.1";
 
   src = fetchFromGitHub {
     owner = "waddie";
     repo = finalAttrs.pname;
     tag = "v${finalAttrs.version}";
-    hash = "sha256-ikKAp1zmjh8ikMMoG+GWiuXZ/+1nXH8JUnZRAZWSbZA=";
+    hash = "sha256-Y8M2mvHUUJcyKZJf2ALn9lRSjFx1VgET1JAjeY1DErU=";
   };
 
   pluginDependencies = [

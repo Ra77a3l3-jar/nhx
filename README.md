@@ -1,7 +1,5 @@
 # nhx
 
-[Codeberg Repo](https://codeberg.org/Ra77a3l3-jar/nhx) | [GitHub Mirror](https://github.com/Ra77a3l3-jar/nhx)
-
 Declarative Helix configuration for Nix, with Steel plugin support.
 
 nhx is a Home Manager module that manages Helix settings, installs Steel
@@ -16,7 +14,7 @@ Add nhx to your flake inputs and import its Home Manager module:
 
 ```nix
 {
-  inputs.nhx.url = "https://codeberg.org/Ra77a3l3-jar/nhx.git";
+  inputs.nhx.url = "github:Ra77a3l3-jar/nhx";
 
   outputs = { nixpkgs, home-manager, nhx, ... }: {
     homeConfigurations.me = home-manager.lib.homeManagerConfiguration {

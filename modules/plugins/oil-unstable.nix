@@ -3,7 +3,6 @@ let
   inherit (lib)
     types
     mkOption
-    optionals
     concatStringsSep
     ;
   s = import ../../lib/scheme.nix { inherit lib; };
@@ -30,24 +29,26 @@ p.mkPluginDescriptor {
       description = "Keymaps for the oil buffer, mode to nested keys to command.";
     };
     hintLayout = mkOption {
-      type = types.attrsOf (types.enum [
-        "start"
-        "end"
-      ]);
+      type = types.attrsOf (
+        types.enum [
+          "start"
+          "end"
+        ]
+      );
       default = { };
-      description = "Oil hint layout, hint name to position, rendered as the *oil-hint-layout* define. Controls where and in what order the hints are displayed.";
+      description = "Oil hint layout, hint name to position, rendered as oil-configure-hints!. Controls where the git-status, icon, and metadata hints are displayed.";
     };
   };
   render =
     cfg:
     concatStringsSep "\n" (
       lib.optional (cfg.hintLayout != { }) (
-        s.call "define" [
-          "*oil-hint-layout*"
-          (s.hash (
-            map (hint: s.hashEntry (s.sym hint) (s.sym cfg.hintLayout.${hint})) (builtins.attrNames cfg.hintLayout)
-          ))
-        ]
+        s.call "oil-configure-hints!" (
+          builtins.concatMap (hint: [
+            (s.kw hint)
+            (s.sym cfg.hintLayout.${hint})
+          ]) (builtins.attrNames cfg.hintLayout)
+        )
       )
       ++ lib.optional (cfg.showDotfiles != null || cfg.showGitIgnored != null) (
         s.call "oil-configure!" [

@@ -11,13 +11,13 @@ buildHelixPlugin (finalAttrs: {
   pname = "oil.hx";
   version = "0-unstable-2026-07-29";
   cogName = "oil";
-  updateVersion = "branch";
+  updateVersion = "skip"; # tracks the unstable branch, not the default
 
   src = fetchFromGitHub {
     owner = "Ra77a3l3-jar";
     repo = finalAttrs.pname;
-    rev = "fdd38520dc041d4314a7c5bc13520195b7f06cfa";
-    hash = "sha256-cMpKLYVh5RkrbmKbigYdAjrF8J1wq6KxOfXoZ4AHLeE=";
+    rev = "5b7a27a95cbce4da4655f743b15db9b4c6d61efe";
+    hash = "sha256-OPQVyF/EdrYRdMmWbvK39n1lajdlfCJYm/jdcoLySIk=";
   };
 
   pluginDependencies = [

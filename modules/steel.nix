@@ -151,24 +151,20 @@ in
       description = "Raw scheme appended at the end of the generated init.scm, for things that cannot be configured with the existing options.";
     };
 
-    lsp = lib.mkOption {
-      type = lib.types.submodule {
-        options = {
-          enable = lib.mkOption {
-            type = lib.types.bool;
-            default = true;
-          };
-          serverName = lib.mkOption {
-            type = lib.types.str;
-            default = "steel-language-server";
-          };
-          language = lib.mkOption {
-            type = lib.types.str;
-            default = "scheme";
-          };
-        };
+    lsp = {
+      enable = lib.mkEnableOption "Steel lsp" // {
+        default = true;
       };
-      default = { };
+      serverName = lib.mkOption {
+        type = lib.types.str;
+        default = "steel-language-server";
+        description = "Name of the Steel language server configuration.";
+      };
+      language = lib.mkOption {
+        type = lib.types.str;
+        default = "scheme";
+        description = "Language for which the Steel lsp will be used.";
+      };
     };
   };
 

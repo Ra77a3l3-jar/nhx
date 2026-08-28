@@ -19,13 +19,13 @@ in
     };
 
     settings = lib.mkOption {
-      type = types.attrs;
+      type = tomlFormat.type;
       default = { };
       description = "Helix settings rendered into ~/.config/helix/config.toml: theme, editor, keys and everything else, same semantics as stock Helix.";
     };
 
     languages = lib.mkOption {
-      type = types.attrs;
+      type = tomlFormat.type;
       default = { };
       description = "Helix languages rendered into ~/.config/helix/languages.toml: language-server and language entries, same semantics as stock Helix.";
     };

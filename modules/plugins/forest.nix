@@ -55,6 +55,11 @@ p.mkPluginDescriptor {
       default = null;
       description = "Sidebar background per focus state.";
     };
+    circularKeybinds = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Snacks only. Wrap j/k inside the current folder and use h/l to enter or leave.";
+    };
     searchColor = mkOption {
       type = types.nullOr (
         types.submodule {
@@ -111,6 +116,7 @@ p.mkPluginDescriptor {
           ]
         )
       )
+      ++ lib.optional cfg.circularKeybinds (s.call "forest-snack-circular-keybinds" [ (s.bool true) ])
       ++ [
         (s.call "forest-set-style!" [ (s.sym cfg.style) ])
         (s.call "forest-configure!" (

@@ -67,6 +67,7 @@ Then configure Helix in `home.nix`:
         enable = true;
         config = {
           style = "snacks";
+          circularKeybinds = true;
           position = "left";
           ignore = [
             ".git"

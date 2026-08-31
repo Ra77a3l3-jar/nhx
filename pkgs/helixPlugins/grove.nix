@@ -7,15 +7,15 @@
 }:
 buildHelixPlugin (finalAttrs: {
   pname = "grove.hx";
-  version = "0-unstable-2026-08-20";
+  version = "0-unstable-2026-08-30";
   cogName = "grove";
   updateVersion = "branch";
 
   src = fetchFromGitHub {
     owner = "ivoronin";
     repo = finalAttrs.pname;
-    rev = "5af0f5e7f37b98009f040417507bd72b9905b201";
-    hash = "sha256-pqwGWLfDB6RT8/H47ndoimyxmeMAm34UIwi/0Fibq7c=";
+    rev = "50a64de161ca52e7ed5745335764fab2eded3c7d";
+    hash = "sha256-mDwKzRCTA9Z7KATzWLMj/XGdkMJrh/weZ4717Ma5dwE=";
   };
 
   pluginDependencies = [

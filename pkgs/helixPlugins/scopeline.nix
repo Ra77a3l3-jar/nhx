@@ -7,15 +7,14 @@
 }:
 buildHelixPlugin (finalAttrs: {
   pname = "scopeline.hx";
-  version = "0.2.0-unstable-2026-08-23";
+  version = "0.3.0";
   cogName = "scopeline";
-  updateVersion = "branch";
 
   src = fetchFromGitHub {
     owner = "Ra77a3l3-jar";
     repo = finalAttrs.pname;
-    rev = "6158e3eab8510565665c26de5b6e3bf258cb45d2";
-    hash = "sha256-/tmUgJyrmuGClphe9ikv2C10SnkLypyPtTKWL0O/s1k=";
+    tag = finalAttrs.version;
+    hash = "sha256-ZX1y7FPBCAGCULWxHdjF5mupGg/bx7KwTNAhqYwIvUQ=";
   };
 
   pluginDependencies = [

@@ -31,7 +31,7 @@ Add nhx to your flake inputs and import its Home Manager module:
 Then configure Helix in `home.nix`:
 
 ```nix
-{ inputs, helix-steel, helixPlugins, ... }:
+{ config, lib, inputs, ... }:
 
 {
   imports = [
@@ -55,52 +55,54 @@ Then configure Helix in `home.nix`:
       lsp.enable = true;
     };
 
-    plugins = with helixPlugins [
-      oil
-      moka
-      scooter
+    plugins = lib.mkMerge [
+      # Install plugins from a list, without requiring them.
+      (with config.programs.nhx.availablePlugins; [
+        moka
+        scooter
+      ])
+
+      # Enable and configure a plugin with an attribute set.
+      {
+        forest = {
+          enable = true;
+          config = {
+            style = "snacks";
+            circularKeybinds = true;
+            position = "left";
+            ignore = [
+              ".git"
+              "target"
+              ".cache"
+              "pycache"
+            ];
+            sidebarBg = {
+              focused = "#1e1e2e";
+              unfocused = "#181825";
+            };
+            searchColor = {
+              focused = "#89b4fa";
+              unfocused = "#6c7086";
+              always = null;
+              followFocus = true;
+            };
+          };
+        };
+
+        oil = {
+          enable = true;
+          config = {
+            showDotfiles = true;
+            keymaps.normal."ret" = ":oil-enter";
+          };
+
+          # scheme for any config that cannot be set with nix
+          extra = ''
+            (oil-configure! #t)
+          '';
+        };
+      }
     ];
-
-    # Enable and configure a plugin with an attribute set.
-    plugins = {
-      forest = {
-        enable = true;
-        config = {
-          style = "snacks";
-          circularKeybinds = true;
-          position = "left";
-          ignore = [
-            ".git"
-            "target"
-            ".cache"
-            "pycache"
-          ];
-          sidebarBg = {
-            focused = "#1e1e2e";
-            unfocused = "#181825";
-          };
-          searchColor = {
-            focused = "#89b4fa";
-            unfocused = "#6c7086";
-            always = null;
-            followFocus = true;
-          };
-        };
-      };
-
-      oil = {
-        enable = true;
-        config = {
-          showDotfiles = true;
-          keymaps.normal."ret" = ":oil-enter";
-        };
-
-        # scheme for any config that cannot be set with nix
-        extra = ''
-          (oil-configure! #t)
-        '';
-      };
-    };
   };
 }
 ```

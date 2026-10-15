@@ -5,15 +5,15 @@
 }:
 buildHelixPlugin (finalAttrs: {
   pname = "zen-mode.hx";
-  version = "0-unstable-2026-09-17";
+  version = "0-unstable-2026-10-14";
   cogName = "zen-mode";
   updateVersion = "branch";
 
   src = fetchFromGitHub {
     owner = "notnmeyer";
     repo = finalAttrs.pname;
-    rev = "ce69db0d6f2ebc2dc9dbcd8bd089d4a29f1c773a";
-    hash = "sha256-Ne244Ekf1PBBsnx6Uq1hA4nvdTaQ4KDvjGhrdcWQw30=";
+    rev = "d04b50ac9167faa9c5ead9a69a32327e8af15f41";
+    hash = "sha256-BW+0NuUK86LPZyC6CJdaBk7JwHCEBlShuco/pPzzfNg=";
   };
 
   meta = {

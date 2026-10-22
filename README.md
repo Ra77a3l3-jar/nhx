@@ -55,7 +55,7 @@ Then configure Helix in `home.nix`:
       lsp.enable = true;
     };
 
-    plugins = with helixPlugins [
+    plugins = with helixPlugins; [
       oil
       moka
       scooter

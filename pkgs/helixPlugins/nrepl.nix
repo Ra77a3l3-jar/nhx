@@ -9,16 +9,16 @@
 }:
 buildHelixPluginWithNative (finalAttrs: {
   pname = "nrepl.hx";
-  version = "0.7.3";
+  version = "0.7.5";
 
   src = fetchFromGitHub {
     owner = "waddie";
     repo = finalAttrs.pname;
     tag = "v${finalAttrs.version}";
-    hash = "sha256-ug59QiqvvWEDXZnM+NGs5xZemYE2yAOP0Bi3tFl7D3U=";
+    hash = "sha256-+CPcPB+/76ojJNnYaH5n/U4Mye7zdzPbVlWvUtajWBE=";
   };
 
-  cargoHash = "sha256-awMCUjuFe1/1n3zgTGHNPI8ZuGVX51QODRc4/DbBtyI=";
+  cargoHash = "sha256-eRX0kwz2XLc5suGhzD3yYpykEePgfVSeduEISg0m5ms=";
 
   pluginDependencies = [
     repl-ui

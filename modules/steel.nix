@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   cfg = config.programs.nhx;
   steelCfg = cfg.steel;
@@ -14,7 +19,9 @@ let
   # home.file targets must be relative to the home directory
   steelHomeRel = lib.removePrefix "${config.home.homeDirectory}/" steelHome;
 
-  cogName = drv: drv.cogName or drv.pluginName or (throw "plugin package is missing a cogName/pluginName passthru");
+  cogName =
+    drv:
+    drv.cogName or drv.pluginName or (throw "plugin package is missing a cogName/pluginName passthru");
   pluginDeps = drv: drv.pluginDependencies or drv.dependencies or [ ];
 
   # includes plugin dependencies with passthru
@@ -26,19 +33,21 @@ let
           key = cogName p;
           val = p;
         }) plugins;
-        operator = item: map (p: {
-          key = cogName p;
-          val = p;
-        }) (pluginDeps item.val);
+        operator =
+          item:
+          map (p: {
+            key = cogName p;
+            val = p;
+          }) (pluginDeps item.val);
       }
     );
 
-  resolvePackage = name: p:
+  resolvePackage =
+    name: p:
     if p.package != null then
       p.package
     else
-      helixPlugins.${name}
-      or (throw ''
+      helixPlugins.${name} or (throw ''
         plugin "${name}" is not packaged in nhx.
         Open a PR to nhx adding it to pkgs/helixPlugins/.
       '');
@@ -70,7 +79,7 @@ let
   # local scheme files in extraRequires are installed next to init.scm
   extraFileLinks = builtins.listToAttrs (
     map (e: {
-      name = ".config/helix/${e.name}";
+      name = "helix/${e.name}";
       value.text = builtins.readFile e.path;
     }) cfg.extraRequires
   );
@@ -94,10 +103,7 @@ in
         merge =
           loc: defs:
           lib.concatLists (
-            map (
-              d:
-              map (e: lib.removePrefix (builtins.dirOf d.file + "/") (toString e)) d.value
-            ) defs
+            map (d: map (e: lib.removePrefix (builtins.dirOf d.file + "/") (toString e)) d.value) defs
           );
       };
       default = [ ];
@@ -168,18 +174,20 @@ in
     };
   };
 
-  config = lib.mkIf (cfg.enable && steelCfg.enable) {
-    # short binding so configs can write plugins = with helixPlugins; [ ... ];
-    _module.args.helixPlugins = config.programs.nhx.availablePlugins;
+  config = lib.mkMerge [
+    {
+      # short binding so configs can write plugins = with helixPlugins; [ ... ];
+      _module.args.helixPlugins = config.programs.nhx.availablePlugins;
+    }
 
-    home.file =
-      cogLinks
-      // nativeLinks
-      // extraFileLinks
-      // {
-        ".config/helix/init.scm" = {
-          text = initScm.render cfg;
-        };
+    (lib.mkIf (cfg.enable && steelCfg.enable) {
+      home.file = cogLinks // nativeLinks;
+
+      # home-manager renders config.toml and languages.toml into xdg.configFile,
+      # so the steel side of ~/.config/helix lives there too
+      xdg.configFile = extraFileLinks // {
+        "helix/init.scm".text = initScm.render cfg;
       };
-  };
+    })
+  ];
 }

@@ -1,9 +1,55 @@
-{ runCommand, lib, pkgs }:
+{
+  runCommand,
+  lib,
+  pkgs,
+}:
 let
   nhxModule = import ../modules;
 
+  fileType = lib.types.attrsOf (
+    lib.types.submodule {
+      options.text = lib.mkOption { type = lib.types.str; };
+      options.source = lib.mkOption { type = lib.types.path; };
+    }
+  );
+
   # minimal home stub with nhx needed settings
   homeStub = { lib }: {
+    options.programs.helix =
+      (lib.genAttrs [
+        "enable"
+        "package"
+        "settings"
+        "languages"
+      ] (_: lib.mkOption { type = lib.types.anything; }))
+      // {
+        defaultEditor = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+        };
+        extraConfig = lib.mkOption {
+          type = lib.types.lines;
+          default = "";
+        };
+        extraPackages = lib.mkOption {
+          type = lib.types.listOf lib.types.package;
+          default = [ ];
+        };
+        themes = lib.mkOption {
+          type = lib.types.attrsOf (pkgs.formats.toml { }).type;
+          default = { };
+        };
+        ignores = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [ ];
+        };
+      };
+
+    options.xdg.configFile = lib.mkOption {
+      type = fileType;
+      default = { };
+    };
+
     options.home = {
       homeDirectory = lib.mkOption { type = lib.types.str; };
       sessionVariables = lib.mkOption {
@@ -15,10 +61,7 @@ let
         default = [ ];
       };
       file = lib.mkOption {
-        type = lib.types.attrsOf (lib.types.submodule {
-          options.text = lib.mkOption { type = lib.types.str; };
-          options.source = lib.mkOption { type = lib.types.path; };
-        });
+        type = fileType;
         default = { };
       };
     };
@@ -29,15 +72,24 @@ let
       { config._module.args = { inherit lib pkgs; }; }
       (homeStub { inherit lib; })
 
-      # list installs without config and without require
+      # Package and name entries are installed and loaded by default.
       ({ helixPlugins, ... }: {
-        programs.nhx.plugins = with helixPlugins; [ scooter trail splash-hx];
+        programs.nhx.plugins = with helixPlugins; [
+          scooter
+          trail
+          "anchor"
+        ];
       })
 
       {
         _file = ./check.nix;
         programs.nhx = {
           enable = true;
+          defaultEditor = true;
+          extraConfig = "# extra configuration from nhx";
+          extraPackages = [ pkgs.ripgrep ];
+          themes.custom.inherits = "base16_default";
+          ignores = [ ".cache/" ];
 
           settings = {
             theme = "catppuccin_mocha";
@@ -67,7 +119,6 @@ let
         };
 
         programs.nhx.plugins.forest = {
-          enable = true;
           config = {
             style = "snacks";
             position = "left";
@@ -75,7 +126,6 @@ let
         };
 
         programs.nhx.plugins.moka = {
-          enable = true;
           config = {
             sections = [
               {
@@ -88,7 +138,6 @@ let
         };
 
         programs.nhx.plugins.notify = {
-          enable = true;
           config.render = "minimal";
           extra = ''
             (notify-config 'timeout 5000)
@@ -96,13 +145,30 @@ let
         };
 
         programs.nhx.plugins.oil = {
-          enable = true;
           config = {
             showDotfiles = true;
             keymaps.normal = {
               "ret" = ":oil-enter";
             };
           };
+        };
+
+        # An empty entry is enabled too; an explicit opt-out is still installed.
+        programs.nhx.plugins.devicons = { };
+        programs.nhx.plugins.trail = {
+          enable = false;
+          extra = ''(error "disabled-trail-must-not-run")'';
+        };
+      }
+
+      # Aliases must preserve upstream defaults and merge with other modules.
+      {
+        programs.helix = {
+          defaultEditor = lib.mkDefault false;
+          extraConfig = "# extra configuration from another module";
+          extraPackages = [ pkgs.fd ];
+          themes.external.inherits = "base16_default";
+          ignores = [ ".direnv/" ];
         };
       }
 
@@ -112,16 +178,20 @@ let
   };
 
   files = result.config.home.file;
-  initScm = files.".config/helix/init.scm".text;
+  configFiles = result.config.xdg.configFile;
+  helix = result.config.programs.helix;
+  initScm = configFiles."helix/init.scm".text;
 
   # check generated init.scm checked before the build
-  assertHas = expected:
+  assertHas =
+    expected:
     if lib.hasInfix expected initScm then
       true
     else
       throw "nhx check: init.scm does not contain: ${expected}";
 
-  assertLacks = unexpected:
+  assertLacks =
+    unexpected:
     if lib.hasInfix unexpected initScm then
       throw "nhx check: init.scm should not contain: ${unexpected}"
     else
@@ -135,8 +205,12 @@ let
     (assertHas "(require \"moka/moka.scm\")")
     (assertHas "(require \"notify/notify.scm\")")
     (assertHas "(require \"oil/oil.scm\")")
-    (assertLacks "scooter")
+    (assertHas "(require \"scooter/scooter.scm\")")
+    (assertHas "(require \"anchor/anchor.scm\")")
+    (assertHas "(require \"devicons/devicons.scm\")")
     (assertLacks "trail")
+    (assertLacks "disabled-trail-must-not-run")
+    (assertLacks "(require \"glyph/glyph.scm\")")
 
     # config check
     (assertHas "(forest-set-style! 'snacks)")
@@ -153,17 +227,59 @@ let
     # extra steel config
     (assertHas "(when (equal? (command-line) ''(\"hx\"))")
     (assertHas "(show-splash)")
+
+    # settings are forwarded to programs.helix
+    (helix.enable || throw "nhx check: programs.helix.enable not enabled")
+    (
+      helix.package.pname == pkgs.steelix.pname
+      || throw "nhx check: programs.helix.package is not steelix"
+    )
+    (
+      helix.settings.theme == "catppuccin_mocha"
+      || throw "nhx check: settings not forwarded to programs.helix"
+    )
+    (helix.languages.language != [ ] || throw "nhx check: languages not forwarded to programs.helix")
+
+    # Upstream aliases keep the user configuration under programs.nhx and
+    # preserve merging with definitions from integrations using programs.helix.
+    (helix.defaultEditor || throw "nhx check: defaultEditor alias lost to upstream default")
+    (
+      lib.all (text: lib.hasInfix text helix.extraConfig) [
+        "# extra configuration from nhx"
+        "# extra configuration from another module"
+      ]
+      || throw "nhx check: extraConfig definitions were not merged"
+    )
+    (
+      lib.all (package: builtins.elem package helix.extraPackages) [
+        pkgs.ripgrep
+        pkgs.fd
+      ]
+      || throw "nhx check: extraPackages definitions were not merged"
+    )
+    (
+      helix.themes.custom.inherits == "base16_default"
+      && helix.themes.external.inherits == "base16_default"
+      || throw "nhx check: themes definitions were not merged"
+    )
+    (
+      lib.all (pattern: builtins.elem pattern helix.ignores) [
+        ".cache/"
+        ".direnv/"
+      ]
+      || throw "nhx check: ignores definitions were not merged"
+    )
   ];
 
   # generated file
   expectedFiles = [
-    ".config/helix/init.scm"
-    ".config/helix/config.toml"
-    ".config/helix/languages.toml"
+    "helix/init.scm"
   ];
 
   # installed plugins
   expectedCogs = map (c: ".local/share/steel/cogs/${c}") [
+    "anchor"
+    "devicons"
     "forest"
     "glyph"
     "moka"
@@ -173,7 +289,7 @@ let
     "trail"
   ];
 
-  missingFiles = lib.subtractLists (builtins.attrNames files) expectedFiles;
+  missingFiles = lib.subtractLists (builtins.attrNames configFiles) expectedFiles;
 
   installedCogs = builtins.attrNames (
     lib.filterAttrs (n: v: lib.hasPrefix ".local/share/steel/cogs/" n) files

@@ -13,15 +13,23 @@ rec {
       requirePath ? null,
     }:
     {
-      inherit name options render requirePath;
+      inherit
+        name
+        options
+        render
+        requirePath
+        ;
     };
 
-  mkPluginsOption = descriptors:
+  mkPluginsOption =
+    descriptors:
     let
-      registry = lib.listToAttrs (map (d: {
-        name = d.name;
-        value = d;
-      }) descriptors);
+      registry = lib.listToAttrs (
+        map (d: {
+          name = d.name;
+          value = d;
+        }) descriptors
+      );
 
       pluginType = types.attrsOf (
         types.submodule (
@@ -29,8 +37,9 @@ rec {
             options = {
               enable = mkOption {
                 type = types.bool;
-                default = false;
-                description = "Whether to require this plugin in the generated init.scm. Mentioning a plugin installs it, enable adds the require.";
+                default = true;
+                description = "Whether to load and configure this plugin in the generated init.scm.
+                              Listed plugins are enabled by default; set false to install without loading or configuring.";
               };
               package = mkOption {
                 type = types.nullOr types.package;

@@ -31,7 +31,7 @@ Add nhx to your flake inputs and import its Home Manager module:
 Then configure Helix in `home.nix`:
 
 ```nix
-{ inputs, helix-steel, helixPlugins, ... }:
+{ inputs, ... }:
 
 {
   imports = [
@@ -55,16 +55,9 @@ Then configure Helix in `home.nix`:
       lsp.enable = true;
     };
 
-    plugins = with helixPlugins [
-      oil
-      moka
-      scooter
-    ];
-
-    # Enable and configure a plugin with an attribute set.
+    # Listed plugins are installed and loaded automatically
     plugins = {
       forest = {
-        enable = true;
         config = {
           style = "snacks";
           circularKeybinds = true;
@@ -89,7 +82,6 @@ Then configure Helix in `home.nix`:
       };
 
       oil = {
-        enable = true;
         config = {
           showDotfiles = true;
           keymaps.normal."ret" = ":oil-enter";
@@ -105,8 +97,40 @@ Then configure Helix in `home.nix`:
 }
 ```
 
-Mentioning a plugin installs it. Set `enable = true` to add its `require`
-form to the generated `~/.config/helix/init.scm`.
+Listing a plugin installs it and adds its `require` to the generated
+`~/.config/helix/init.scm`. Attribute sets configure plugins without needing
+`enable = true`. To install a plugin without loading or configuring it, set
+`enable = false` explicitly.
+
+For plugins that need no configuration, you can also use the `helixPlugins`
+module argument:
+
+```nix
+{ helixPlugins, ... }:
+
+{
+  programs.nhx.plugins = with helixPlugins; [
+    moka
+    scooter
+  ];
+}
+```
+
+Use standard [Helix Home Manager options](https://nix-community.github.io/home-manager/options.xhtml#opt-programs.helix.enable),
+such as `defaultEditor` and `extraConfig`, directly under `programs.nhx`:
+
+```nix
+{
+  programs.nhx = {
+    enable = true;
+    defaultEditor = true;
+    extraConfig = ''
+      [keys.normal]
+      ":" = "repeat_last_normal"
+    '';
+  };
+}
+```
 
 ## Repository layout
 

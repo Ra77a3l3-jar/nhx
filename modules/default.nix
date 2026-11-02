@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   cfg = config.programs.nhx;
   inherit (lib) types;
@@ -7,6 +12,13 @@ in
 {
   imports = [
     ./steel.nix
+  ]
+  ++ map (name: lib.mkAliasOptionModule [ "programs" "nhx" name ] [ "programs" "helix" name ]) [
+    "defaultEditor"
+    "extraConfig"
+    "extraPackages"
+    "themes"
+    "ignores"
   ];
 
   options.programs.nhx = {
@@ -15,7 +27,7 @@ in
     package = lib.mkOption {
       type = types.nullOr types.package;
       default = pkgs.steelix;
-      description = "Helix editor package (steel fork), null leaves programs.helix untouched.";
+      description = "Helix editor package (steel fork), null leaves programs.helix.package untouched.";
     };
 
     settings = lib.mkOption {
@@ -32,14 +44,11 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    home.packages = lib.mkIf (cfg.package != null) [ cfg.package ];
-
-    home.file.".config/helix/config.toml" = lib.mkIf (cfg.settings != { }) {
-      source = tomlFormat.generate "config.toml" cfg.settings;
-    };
-
-    home.file.".config/helix/languages.toml" = lib.mkIf (cfg.languages != { }) {
-      source = tomlFormat.generate "languages.toml" cfg.languages;
+    programs.helix = {
+      enable = lib.mkDefault true;
+      package = lib.mkIf (cfg.package != null) (lib.mkDefault cfg.package);
+      settings = lib.mkIf (cfg.settings != { }) cfg.settings;
+      languages = lib.mkIf (cfg.languages != { }) cfg.languages;
     };
   };
 }

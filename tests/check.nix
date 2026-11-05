@@ -2,8 +2,30 @@
 let
   nhxModule = import ../modules;
 
+  fileType = lib.types.attrsOf (lib.types.submodule {
+    options.text = lib.mkOption { type = lib.types.str; };
+    options.source = lib.mkOption { type = lib.types.path; };
+  });
+
   # minimal home stub with nhx needed settings
   homeStub = { lib }: {
+    options.programs.helix = lib.genAttrs [
+      "enable"
+      "package"
+      "extraPackages"
+      "extraConfig"
+      "defaultEditor"
+      "settings"
+      "languages"
+      "ignores"
+      "themes"
+    ] (_: lib.mkOption { type = lib.types.anything; });
+
+    options.xdg.configFile = lib.mkOption {
+      type = fileType;
+      default = { };
+    };
+
     options.home = {
       homeDirectory = lib.mkOption { type = lib.types.str; };
       sessionVariables = lib.mkOption {
@@ -15,10 +37,7 @@ let
         default = [ ];
       };
       file = lib.mkOption {
-        type = lib.types.attrsOf (lib.types.submodule {
-          options.text = lib.mkOption { type = lib.types.str; };
-          options.source = lib.mkOption { type = lib.types.path; };
-        });
+        type = fileType;
         default = { };
       };
     };
@@ -34,11 +53,13 @@ let
         programs.nhx.plugins = with helixPlugins; [ scooter trail splash-hx];
       })
 
+      ({ pkgs, ... }: {
+        programs.nhx.enable = pkgs ? steelix;
+      })
+
       {
         _file = ./check.nix;
         programs.nhx = {
-          enable = true;
-
           settings = {
             theme = "catppuccin_mocha";
             editor.line-number = "relative";
@@ -112,7 +133,9 @@ let
   };
 
   files = result.config.home.file;
-  initScm = files.".config/helix/init.scm".text;
+  configFiles = result.config.xdg.configFile;
+  helix = result.config.programs.helix;
+  initScm = configFiles."helix/init.scm".text;
 
   # check generated init.scm checked before the build
   assertHas = expected:
@@ -150,6 +173,11 @@ let
     (assertHas "(define oil-keymaps")
     (assertHas "(set-global-buffer-or-extension-keymap")
 
+    (helix.enable || throw "nhx check: programs.helix.enable not set")
+    (helix.settings.theme == "catppuccin_mocha" || throw "nhx check: settings not forwarded to programs.helix")
+    (helix.languages.language != [ ] || throw "nhx check: languages not forwarded to programs.helix")
+    (helix.package.pname == pkgs.steelix.pname || throw "nhx check: programs.helix.package is not steelix")
+
     # extra steel config
     (assertHas "(when (equal? (command-line) ''(\"hx\"))")
     (assertHas "(show-splash)")
@@ -157,9 +185,7 @@ let
 
   # generated file
   expectedFiles = [
-    ".config/helix/init.scm"
-    ".config/helix/config.toml"
-    ".config/helix/languages.toml"
+    "helix/init.scm"
   ];
 
   # installed plugins
@@ -173,7 +199,7 @@ let
     "trail"
   ];
 
-  missingFiles = lib.subtractLists (builtins.attrNames files) expectedFiles;
+  missingFiles = lib.subtractLists (builtins.attrNames configFiles) expectedFiles;
 
   installedCogs = builtins.attrNames (
     lib.filterAttrs (n: v: lib.hasPrefix ".local/share/steel/cogs/" n) files

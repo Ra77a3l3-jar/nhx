@@ -70,7 +70,7 @@ let
   # local scheme files in extraRequires are installed next to init.scm
   extraFileLinks = builtins.listToAttrs (
     map (e: {
-      name = ".config/helix/${e.name}";
+      name = "helix/${e.name}";
       value.text = builtins.readFile e.path;
     }) cfg.extraRequires
   );
@@ -168,18 +168,18 @@ in
     };
   };
 
-  config = lib.mkIf (cfg.enable && steelCfg.enable) {
-    # short binding so configs can write plugins = with helixPlugins; [ ... ];
-    _module.args.helixPlugins = config.programs.nhx.availablePlugins;
+  config = lib.mkMerge [
+    {
+      # short binding so configs can write plugins = with helixPlugins; [ ... ];
+      _module.args.helixPlugins = helixPlugins;
+    }
 
-    home.file =
-      cogLinks
-      // nativeLinks
-      // extraFileLinks
-      // {
-        ".config/helix/init.scm" = {
-          text = initScm.render cfg;
-        };
+    (lib.mkIf (cfg.enable && steelCfg.enable) {
+      home.file = cogLinks // nativeLinks;
+
+      xdg.configFile = extraFileLinks // {
+        "helix/init.scm".text = initScm.render cfg;
       };
-  };
+    })
+  ];
 }
